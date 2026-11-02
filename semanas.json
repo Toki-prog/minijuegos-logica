@@ -1,4 +1,13 @@
 {
   "curso": "Lógica desde cero",
-  "semanas": []
+  "semanas": [
+    {
+      "semana": 1,
+      "concepto": "variables",
+      "titulo": "Variables: cajas con nombre",
+      "archivo": "semana-01-variables.html",
+      "fecha": "2026-11-02",
+      "resumen": "Mira este programa y escribe qué número se muestra al final."
+    }
+  ]
 }

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Semana 1 · Variables — Lógica desde cero</title>
+<style>
+  :root{
+    --tinta:#1b2430;
+    --tinta-suave:#5a6b7d;
+    --papel:#f7f5ef;
+    --tarjeta:#ffffff;
+    --linea:#e3ded4;
+    --acento:#2f6b5f;
+    --acento-claro:#e8f2ef;
+    --alerta:#a8442f;
+    --alerta-claro:#fbece8;
+    --exito:#2f7d4f;
+    --exito-claro:#e7f5ec;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--papel);
+    color:var(--tinta);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .envuelta{max-width:680px;margin:0 auto;padding:24px 16px 56px}
+  header.encabezado{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .marca{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--tinta-suave);font-weight:700}
+  .fichas{display:flex;gap:8px;flex-wrap:wrap}
+  .ficha{
+    font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:999px;
+    background:var(--acento-claro);color:var(--acento);border:1px solid #cfe3dd;
+  }
+  h1{font-size:1.6rem;line-height:1.25;margin:6px 0 4px}
+  .subtitulo{color:var(--tinta-suave);font-size:.95rem;margin:0 0 20px}
+  .tarjeta{
+    background:var(--tarjeta);border:1px solid var(--linea);border-radius:16px;
+    padding:20px;margin-bottom:18px;
+  }
+  .tarjeta h2{font-size:1.02rem;margin:0 0 8px;letter-spacing:.01em}
+  .tarjeta p{margin:0 0 10px}
+  .tarjeta p:last-child{margin-bottom:0}
+  .panel{
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    background:var(--acento-claro);border:1px solid #cfe3dd;border-radius:16px;
+    padding:12px 16px;margin-bottom:18px;
+  }
+  .panel .dato{display:flex;flex-direction:column;min-width:64px}
+  .panel .dato b{font-size:1.2rem;line-height:1.1}
+  .panel .dato span{font-size:.7rem;text-transform:uppercase;letter-spacing:.09em;color:var(--tinta-suave);font-weight:700}
+  .barra{flex:1 1 140px;height:8px;background:#d7e7e2;border-radius:999px;overflow:hidden;min-width:120px}
+  .barra > i{display:block;height:100%;width:0%;background:var(--acento);transition:width .35s ease}
+  pre{
+    background:#1f2733;color:#e9eef2;border-radius:12px;padding:14px 16px;
+    overflow-x:auto;font-size:.9rem;line-height:1.55;margin:0 0 14px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .hueco{
+    display:inline-block;min-width:90px;border-bottom:2px dashed #8fb3aa;color:#ffd479;
+  }
+  .pila{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+  .pieza{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:.83rem;text-align:left;background:#eef1f4;color:#1f2733;
+    border:1px solid #d5dde4;border-radius:10px;padding:8px 12px;cursor:pointer;
+    transition:transform .12s ease,background .12s ease;
+  }
+  .pieza:hover{background:#e4eaf0}
+  .pieza:active{transform:scale(.98)}
+  .pieza.en-secuencia{background:var(--acento-claro);border-color:#9fc6ba;color:#1c443c}
+  .zona{
+    min-height:56px;border:1.5px dashed #c9c2b4;border-radius:12px;padding:10px;
+    display:flex;flex-direction:column;gap:6px;background:#fbfaf7;
+  }
+  .zona .vacia{color:var(--tinta-suave);font-size:.85rem;font-style:italic}
+  .etiqueta-mini{
+    font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;
+    color:var(--tinta-suave);margin:14px 0 6px;
+  }
+  input[type="text"]{
+    width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--linea);
+    font-size:1rem;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:#fbfaf7;color:var(--tinta);
+  }
+  input[type="text"]:focus{outline:2px solid #9fc6ba;outline-offset:1px;border-color:var(--acento)}
+  .acciones{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  button.principal,button.secundario{
+    font:inherit;font-weight:700;border-radius:10px;padding:11px 20px;cursor:pointer;border:1.5px solid transparent;
+  }
+  button.principal{background:var(--acento);color:#fff}
+  button.principal:hover{background:#275a50}
+  button.principal:disabled{background:#b6c4bf;cursor:not-allowed}
+  button.secundario{background:transparent;color:var(--tinta-suave);border-color:var(--linea)}
+  button.secundario:hover{background:#f0ede6}
+  .feedback{
+    margin-top:14px;padding:12px 14px;border-radius:12px;font-size:.92rem;
+    display:none;border:1px solid transparent;
+  }
+  .feedback.visible{display:block}
+  .feedback.fallo{background:var(--alerta-claro);border-color:#f0cdc4;color:#7d3220}
+  .feedback.exito{background:var(--exito-claro);border-color:#c4e3d0;color:#1f5c39}
+  .feedback b{display:block;margin-bottom:4px}
+  .feedback .pista{margin-top:6px;padding-top:8px;border-top:1px dashed rgba(0,0,0,.15)}
+  .feedback .pista em{font-style:normal;font-weight:700;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:2px;opacity:.75}
+  .ruta{list-style:none;padding:0;margin:4px 0 0;display:flex;flex-wrap:wrap;gap:6px}
+  .ruta li{
+    font-size:.76rem;padding:4px 10px;border-radius:999px;border:1px solid var(--linea);
+    color:var(--tinta-suave);background:#fbfaf7;
+  }
+  .ruta li.actual{background:var(--acento);border-color:var(--acento);color:#fff;font-weight:700}
+  .ruta li.hecho{background:var(--exito-claro);border-color:#c4e3d0;color:#1f5c39}
+  footer{color:var(--tinta-suave);font-size:.78rem;text-align:center;margin-top:24px}
+  footer a{color:var(--acento)}
+  @media (max-width:420px){
+    .envuelta{padding:18px 12px 40px}
+    h1{font-size:1.35rem}
+    .tarjeta{padding:16px}
+    button.principal,button.secundario{width:100%}
+  }
+</style>
+</head>
+<body>
+<main class="envuelta">
+  <header class="encabezado">
+    <span class="marca">Lógica desde cero</span>
+    <div class="fichas">
+      <span class="ficha" id="ficha-semana">Semana 1</span>
+      <span class="ficha" id="ficha-concepto">Variables</span>
+    </div>
+  </header>
+
+  <h1 id="titulo">Variables: cajas con nombre</h1>
+  <p class="subtitulo" id="subtitulo">Un reto corto para pensar como una computadora.</p>
+
+  <div class="panel" aria-label="Tu progreso">
+    <div class="dato"><b id="marcador-puntos">0</b><span>Puntos</span></div>
+    <div class="dato"><b id="marcador-intentos">0</b><span>Intentos</span></div>
+    <div class="barra"><i id="barra-progreso"></i></div>
+  </div>
+
+  <section class="tarjeta">
+    <h2>La idea de esta semana</h2>
+    <p id="explicacion"></p>
+  </section>
+
+  <section class="tarjeta">
+    <h2>El reto</h2>
+    <p id="enunciado"></p>
+    <div id="zona-reto"></div>
+    <div id="zona-feedback" class="feedback" role="status" aria-live="polite"></div>
+    <div class="acciones">
+      <button class="principal" id="btn-comprobar" type="button">Comprobar</button>
+      <button class="secundario" id="btn-reiniciar" type="button">Reiniciar</button>
+    </div>
+  </section>
+
+  <section class="tarjeta">
+    <h2>Tu ruta</h2>
+    <ul class="ruta" id="ruta"></ul>
+  </section>
+
+  <footer>Hecho para practicar lógica de programación sin experiencia previa.</footer>
+</main>
+
+<script>
+/* ==== CORE-START ==== */
+/* Datos del reto. Es lo único que cambia cada semana. */
+var CONTENIDO = {
+  semana: 1,
+  concepto: "variables",
+  titulo: "Variables: cajas con nombre",
+  subtitulo: "Semana 1 · Variables",
+  explicacion: "Una variable es una caja con nombre donde guardas un valor para usarlo después. Si cambias lo que hay dentro, el nombre sigue siendo el mismo, pero el valor ya no. Leer el código en orden, línea por línea, es la clave para saber qué queda al final.",
+  reto: {
+    tipo: "predecir",
+    enunciado: "Mira este programa y escribe qué número se muestra al final.",
+    codigo: "edad = 25\nedad = edad + 5\nmuestra(edad)",
+    solucion: "30",
+    acepta: ["30"],
+    pistas: [
+      "Lee la primera línea: la caja llamada edad guarda un número. ¿Cuál?",
+      "En la segunda línea, la caja se usa a la derecha y también se guarda a la izquierda. ¿Cuánto vale edad justo antes de esa suma?",
+      "Haz la cuenta con ese valor y el 5. El resultado es lo que queda dentro de la caja."
+    ],
+    exito: "Exacto: edad empezó en 25, luego se reemplazó por 25 + 5. Al final la caja guarda 30."
+  }
+};
+var RUTA = ["variables","condicionales","bucles","funciones","arrays/listas","recursión","algoritmos básicos"];
+
+function normalizar(texto){
+  return String(texto == null ? "" : texto)
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/[;.,!?"'`´]/g, "");
+}
+
+function crearEstado(){
+  return { intentos: 0, puntos: 0, pista: 0, resuelto: false };
+}
+
+function esCorrecta(respuesta){
+  var reto = CONTENIDO.reto;
+  if (reto.tipo === "ordenar") {
+    if (!Array.isArray(respuesta)) return false;
+    if (respuesta.length !== reto.solucion.length) return false;
+    for (var i = 0; i < reto.solucion.length; i++) {
+      if (respuesta[i] !== reto.solucion[i]) return false;
+    }
+    return true;
+  }
+  var intento = normalizar(respuesta);
+  if (!intento) return false;
+  var validas = [reto.solucion].concat(reto.acepta || []);
+  for (var j = 0; j < validas.length; j++) {
+    if (normalizar(validas[j]) === intento) return true;
+  }
+  return false;
+}
+
+function comprobar(respuesta, estado){
+  if (estado.resuelto) {
+    return { ok: true, mensaje: CONTENIDO.reto.exito, pista: null, yaResuelto: true };
+  }
+  estado.intentos = estado.intentos + 1;
+  if (esCorrecta(respuesta)) {
+    estado.resuelto = true;
+    estado.puntos = Math.max(30, 100 - 20 * (estado.intentos - 1));
+    return { ok: true, mensaje: CONTENIDO.reto.exito, pista: null, yaResuelto: false };
+  }
+  var pistas = CONTENIDO.reto.pistas;
+  var pista = pistas[Math.min(estado.pista, pistas.length - 1)];
+  estado.pista = Math.min(estado.pista + 1, pistas.length);
+  return { ok: false, mensaje: "Todavía no. Revísalo con calma.", pista: pista, yaResuelto: false };
+}
+/* ==== CORE-END ==== */
+
+var estado = crearEstado();
+var seleccion = [];
+
+function $(id){ return document.getElementById(id); }
+
+function pintarMarcador(){
+  $("marcador-puntos").textContent = String(estado.puntos);
+  $("marcador-intentos").textContent = String(estado.intentos);
+  var total = Math.max(1, Math.ceil(estado.pista / Math.max(1, CONTENIDO.reto.pistas.length)));
+  var avance = estado.resuelto ? 100 : Math.min(90, estado.pista * 30);
+  $("barra-progreso").style.width = avance + "%";
+  return total;
+}
+
+function respuestaActual(){
+  if (CONTENIDO.reto.tipo === "ordenar") return seleccion.slice();
+  var campo = $("respuesta");
+  return campo ? campo.value : "";
+}
+
+function pintarZona(){
+  var zona = $("zona-reto");
+  zona.innerHTML = "";
+  var reto = CONTENIDO.reto;
+
+  if (reto.tipo === "predecir" || reto.tipo === "completar") {
+    var pre = document.createElement("pre");
+    var codigo = document.createElement("code");
+    if (reto.tipo === "completar") {
+      codigo.innerHTML = String(reto.codigo).replace(/___/g, '<span class="hueco">???</span>');
+    } else {
+      codigo.textContent = reto.codigo;
+    }
+    pre.appendChild(codigo);
+    zona.appendChild(pre);
+
+    var campo = document.createElement("input");
+    campo.type = "text";
+    campo.id = "respuesta";
+    campo.autocomplete = "off";
+    campo.spellcheck = false;
+    campo.setAttribute("aria-label", reto.tipo === "completar" ? "Completa el hueco del código" : "Escribe el resultado del programa");
+    campo.placeholder = reto.tipo === "completar" ? "Escribe lo que falta..." : "Escribe el resultado...";
+    campo.value = "";
+    campo.addEventListener("input", function(){});
+    campo.addEventListener("keydown", function(evento){
+      if (evento.key === "Enter") { evento.preventDefault(); enviar(); }
+    });
+    zona.appendChild(campo);
+    return;
+  }
+
+  var piezas = document.createElement("div");
+  piezas.className = "pila";
+  piezas.id = "piezas";
+
+  var etiquetaPiezas = document.createElement("p");
+  etiquetaPiezas.className = "etiqueta-mini";
+  etiquetaPiezas.textContent = "Piezas disponibles";
+  zona.appendChild(etiquetaPiezas);
+  zona.appendChild(piezas);
+
+  var etiquetaSecuencia = document.createElement("p");
+  etiquetaSecuencia.className = "etiqueta-mini";
+  etiquetaSecuencia.textContent = "Tu programa, en orden";
+  zona.appendChild(etiquetaSecuencia);
+
+  var secuencia = document.createElement("div");
+  secuencia.className = "zona";
+  secuencia.id = "secuencia";
+  zona.appendChild(secuencia);
+
+  pintarPiezas();
+}
+
+function pintarPiezas(){
+  var reto = CONTENIDO.reto;
+  var piezas = $("piezas");
+  var secuencia = $("secuencia");
+  if (!piezas || !secuencia) return;
+  piezas.innerHTML = "";
+  secuencia.innerHTML = "";
+
+  reto.piezas.forEach(function(pieza){
+    if (seleccion.indexOf(pieza.id) !== -1) return;
+    var boton = document.createElement("button");
+    boton.type = "button";
+    boton.className = "pieza";
+    boton.textContent = pieza.texto;
+    boton.addEventListener("click", function(){
+      seleccion.push(pieza.id);
+      pintarPiezas();
+    });
+    piezas.appendChild(boton);
+  });
+  if (!piezas.firstChild) {
+    var vacio = document.createElement("span");
+    vacio.className = "vacia";
+    vacio.textContent = "Ya usaste todas las piezas.";
+    piezas.appendChild(vacio);
+  }
+
+  if (!seleccion.length) {
+    var aviso = document.createElement("span");
+    aviso.className = "vacia";
+    aviso.textContent = "Pulsa las piezas para armar la lógica.";
+    secuencia.appendChild(aviso);
+    return;
+  }
+
+  seleccion.forEach(function(id, posicion){
+    var pieza = null;
+    for (var i = 0; i < reto.piezas.length; i++) {
+      if (reto.piezas[i].id === id) pieza = reto.piezas[i];
+    }
+    var boton = document.createElement("button");
+    boton.type = "button";
+    boton.className = "pieza en-secuencia";
+    boton.textContent = (posicion + 1) + ". " + (pieza ? pieza.texto : id);
+    boton.addEventListener("click", function(){
+      seleccion.splice(posicion, 1);
+      pintarPiezas();
+    });
+    secuencia.appendChild(boton);
+  });
+}
+
+function mostrarFeedback(resultado){
+  var caja = $("zona-feedback");
+  caja.className = "feedback visible " + (resultado.ok ? "exito" : "fallo");
+  caja.innerHTML = "";
+  var titulo = document.createElement("b");
+  titulo.textContent = resultado.ok ? "¡Bien!" : "Casi";
+  caja.appendChild(titulo);
+  var texto = document.createElement("span");
+  texto.textContent = resultado.mensaje;
+  caja.appendChild(texto);
+  if (resultado.pista) {
+    var pista = document.createElement("div");
+    pista.className = "pista";
+    var marca = document.createElement("em");
+    marca.textContent = "Pista " + Math.min(estado.pista, CONTENIDO.reto.pistas.length);
+    pista.appendChild(marca);
+    var contenido = document.createElement("span");
+    contenido.textContent = resultado.pista;
+    pista.appendChild(contenido);
+    caja.appendChild(pista);
+  }
+}
+
+function enviar(){
+  if (estado.resuelto) {
+    mostrarFeedback({ ok: true, mensaje: CONTENIDO.reto.exito, pista: null });
+    return;
+  }
+  var resultado = comprobar(respuestaActual(), estado);
+  pintarMarcador();
+  mostrarFeedback(resultado);
+  if (resultado.ok) {
+    $("btn-comprobar").disabled = true;
+    var campo = $("respuesta");
+    if (campo) campo.disabled = true;
+  }
+}
+
+function reiniciar(){
+  estado = crearEstado();
+  seleccion = [];
+  $("zona-feedback").className = "feedback";
+  $("zona-feedback").innerHTML = "";
+  $("btn-comprobar").disabled = false;
+  pintarZona();
+  pintarMarcador();
+}
+
+function pintarRuta(){
+  var lista = $("ruta");
+  lista.innerHTML = "";
+  var indiceActual = RUTA.indexOf(CONTENIDO.concepto);
+  RUTA.forEach(function(concepto, indice){
+    var item = document.createElement("li");
+    item.textContent = concepto;
+    if (indice < indiceActual) item.className = "hecho";
+    if (indice === indiceActual) item.className = "actual";
+    lista.appendChild(item);
+  });
+}
+
+function iniciar(){
+  $("ficha-semana").textContent = "Semana " + CONTENIDO.semana;
+  $("ficha-concepto").textContent = CONTENIDO.concepto;
+  $("titulo").textContent = CONTENIDO.titulo;
+  $("subtitulo").textContent = CONTENIDO.subtitulo;
+  $("explicacion").textContent = CONTENIDO.explicacion;
+  $("enunciado").textContent = CONTENIDO.reto.enunciado;
+  $("zona-reto").innerHTML = "";
+  pintarZona();
+  pintarRuta();
+  pintarMarcador();
+  $("btn-comprobar").addEventListener("click", enviar);
+  $("btn-reiniciar").addEventListener("click", reiniciar);
+}
+
+/* Punto de entrada único: el validador lo ejecuta con un DOM simulado. */
+if (typeof window !== "undefined") {
+  window.__reto = {
+    iniciar: iniciar,
+    enviar: enviar,
+    reiniciar: reiniciar,
+    estado: function(){ return estado; },
+    seleccionar: function(ids){ seleccion = ids.slice(); pintarPiezas(); },
+    escribir: function(valor){ var campo = $("respuesta"); if (campo) campo.value = valor; },
+    contenido: CONTENIDO
+  };
+}
+
+if (typeof document !== "undefined" && document.getElementById) {
+  iniciar();
+}
+</script>
+</body>
+</html>
